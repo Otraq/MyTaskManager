@@ -13,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.hosse.mytaskmanager.database.DatabaseHelper;
+
 import java.util.UUID;
 
 public class DetailsFragment extends Fragment {
@@ -26,6 +28,7 @@ public class DetailsFragment extends Fragment {
     private Button deleteBtn;
     private Button doneBtn;
     private Toolbar toolbar;
+    private DatabaseHelper db;
 
 
     @Nullable
@@ -33,14 +36,15 @@ public class DetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_details, container, false);
 
-        note = NoteList.getInstance().findNote((UUID) getActivity().getIntent().getSerializableExtra("NoteID"));
+        db = new DatabaseHelper(getActivity());
+        note = NoteList.getInstance().findNote(getActivity().getIntent().getIntExtra("NoteID", 0));
         dscText = view.findViewById(R.id.des_text);
         dateText = view.findViewById(R.id.date_text);
         timeText = view.findViewById(R.id.time_text);
         editBtn = view.findViewById(R.id.edit_btn);
         deleteBtn = view.findViewById(R.id.delete_btn);
         doneBtn = view.findViewById(R.id.done_btn);
-        toolbar=view.findViewById(R.id.details_toolbar);
+        toolbar = view.findViewById(R.id.details_toolbar);
 
         dscText.setText(note.getDescription());
         dateText.setText(MyDate.getStringDate(note.getDateTime()));
@@ -50,7 +54,8 @@ public class DetailsFragment extends Fragment {
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                AddDialog dialog = AddDialog.newInstance();
+                dialog.show(getActivity().getSupportFragmentManager(), "MyDetailsAddFragment");
             }
         });
 
@@ -62,7 +67,8 @@ public class DetailsFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         NoteList.getInstance().getNoteList().remove(NoteList.getInstance().findNote(note.getId()));
-                        Snackbar.make(getView(),"You've deleted this task.",Snackbar.LENGTH_SHORT).show();
+                        db.deleteNote(note);
+                        Snackbar.make(getView(), "You've deleted this task.", Snackbar.LENGTH_SHORT).show();
                     }
                 });
                 dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -80,7 +86,8 @@ public class DetailsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 note.setDone(true);
-                Snackbar.make(view,"You've done this task.",Snackbar.LENGTH_SHORT).show();
+                db.updateNote(note);
+                Snackbar.make(view, "You've done this task.", Snackbar.LENGTH_SHORT).show();
             }
         });
 

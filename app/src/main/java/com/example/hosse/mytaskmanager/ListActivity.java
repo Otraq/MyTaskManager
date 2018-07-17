@@ -14,7 +14,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.hosse.mytaskmanager.database.DatabaseHelper;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
@@ -29,6 +32,9 @@ public class ListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
+
+        DatabaseHelper db = new DatabaseHelper(this);
+        NoteList.getInstance().setNoteList(db.getNoteList());
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -46,9 +52,8 @@ public class ListActivity extends AppCompatActivity {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddDialog dialog = new AddDialog();
+                AddDialog dialog = AddDialog.newInstance();
                 dialog.show(getSupportFragmentManager(), "MyAddDialog");
-
             }
         });
 
@@ -84,7 +89,7 @@ public class ListActivity extends AppCompatActivity {
         adapter.addFragment(f3, "UnDone");
 
         viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(adapter.mFragmentList.size()-1);
+        viewPager.setOffscreenPageLimit(adapter.mFragmentList.size() - 1);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

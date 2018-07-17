@@ -26,8 +26,7 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
 
-    public static Intent newIntent(Context context, UUID noteId) {
-
+    public static Intent newIntent(Context context, int noteId) {
         return new Intent(context, DetailsActivity.class).putExtra("NoteID", noteId);
     }
 }
