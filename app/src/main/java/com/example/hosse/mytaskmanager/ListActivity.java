@@ -27,6 +27,7 @@ public class ListActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private FloatingActionButton addBtn;
     public final static String TAB_MODE_KEY = "TAB_MODE";
+    public final static int M = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class ListActivity extends AppCompatActivity {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddDialog dialog = AddDialog.newInstance();
+                AddDialog dialog = AddDialog.newInstance(M, 0);
                 dialog.show(getSupportFragmentManager(), "MyAddDialog");
             }
         });

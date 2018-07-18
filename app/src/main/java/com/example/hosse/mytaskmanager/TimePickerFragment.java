@@ -26,7 +26,7 @@ import java.util.GregorianCalendar;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+public class TimePickerFragment extends DialogFragment {
 
     public static final String ARG_TIME = "arg_time";
     public static final String EXTRA_TIME = "extra_time";
@@ -53,10 +53,11 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater=LayoutInflater.from(getActivity());
-        View view=inflater.inflate(R.layout.fragment_time_picker,null);
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View view = inflater.inflate(R.layout.fragment_time_picker, null);
+        mTimePicker = view.findViewById(R.id.time_picker);
 
-        AlertDialog dialog= new AlertDialog.Builder(getActivity())
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle("TimePicker")
                 .setView(view)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -75,20 +76,16 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
 
         Calendar calendar = Calendar.getInstance();
         Date date = new Date();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
+        calendar.setTime(mDate);
 
-        date.setTime(calendar.getTimeInMillis());
+        int h = mTimePicker.getCurrentHour();
+        int m = mTimePicker.getCurrentMinute();
+
+        mDate.setHours(h);
+        mDate.setMinutes(m);
+
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_TIME, date);
+        intent.putExtra(EXTRA_TIME, mDate);
         getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
-    }
-
-    @Override
-    public void onTimeSet(TimePicker timePicker, int i, int i1) {
-        hour = i;
-        Log.e("timetest",String.valueOf(hour));
-        minute = i1;
     }
 }

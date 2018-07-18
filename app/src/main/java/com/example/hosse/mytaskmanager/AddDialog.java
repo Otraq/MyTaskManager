@@ -30,16 +30,29 @@ public class AddDialog extends DialogFragment {
     private EditText titleEditText;
     private EditText descriptionEditText;
     private DatabaseHelper db;
+    private Note note;
+    private int m;
 
     public static final int REQUEST_DATE = 0;
     public static final int REQUEST_TIME = 1;
+    public static final String ARGS_M = "args_m";
+    public static final String ARGS_NOTE = "args_note";
     public static final String SAVED_VALUE = "saved_value";
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        int noteId = getArguments().getInt(ARGS_NOTE);
+        note = NoteList.getInstance().findNote(noteId);
+        m = getArguments().getInt(ARGS_M);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_add, container, false);
+
         addBtn = view.findViewById(R.id.add_dialog_btn);
         dismissBtn = view.findViewById(R.id.dismiss_dialog_btn);
         datePickerBtn = view.findViewById(R.id.date_picker_btn);
@@ -49,18 +62,32 @@ public class AddDialog extends DialogFragment {
         db = new DatabaseHelper(getActivity());
 
         mDate = new Date();
+        if (m == DetailsFragment.M) {
+            mDate = note.getDateTime();
+            datePickerBtn.setText(MyDate.getStringDate(mDate));
+            timePickerBtn.setText(MyDate.getStringTime(mDate));
+            titleEditText.setText(note.getTitle());
+            descriptionEditText.setText(note.getDescription());
+        }
 
         if (savedInstanceState != null) {
             mDate = (Date) savedInstanceState.getSerializable(SAVED_VALUE);
             datePickerBtn.setText(MyDate.getStringDate(mDate));
+            timePickerBtn.setText(MyDate.getStringTime(mDate));
         }
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                if (m == DetailsFragment.M) {
+
+                    
+                }
+
                 long id = db.insertNote(titleEditText.getText().toString(), descriptionEditText.getText().toString(), mDate);
 
-                Note note = new Note((int) (long)id);
+                Note note = new Note((int) (long) id);
                 note.setTitle(titleEditText.getText().toString());
                 note.setDescription(descriptionEditText.getText().toString());
                 note.setDateTime(mDate);
@@ -107,14 +134,21 @@ public class AddDialog extends DialogFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_DATE) {
+            if (data == null)
+                return;
 
-        if (data == null)
-            return;
+            Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+            mDate.setTime(date.getTime());
 
-        Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
-        mDate.setTime(date.getTime());
-
-        datePickerBtn.setText(MyDate.getStringDate(date));
+            datePickerBtn.setText(MyDate.getStringDate(date));
+        } else if (requestCode == REQUEST_TIME) {
+            if (data == null)
+                return;
+            Date date = (Date) data.getSerializableExtra(TimePickerFragment.EXTRA_TIME);
+            mDate.setTime(date.getTime());
+            timePickerBtn.setText(MyDate.getStringTime(date));
+        }
     }
 
     @Override
@@ -123,12 +157,25 @@ public class AddDialog extends DialogFragment {
         outState.putSerializable(SAVED_VALUE, mDate);
     }
 
-    public static AddDialog newInstance() {
+    public static AddDialog newInstance(int m, int noteId) {
 
         Bundle args = new Bundle();
-
+        args.putInt(ARGS_M, m);
+        args.putInt(ARGS_NOTE, noteId);
         AddDialog fragment = new AddDialog();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public void update() {
+        Note updatedNote = new Note(note.getId());
+        updatedNote.setTitle(titleEditText.getText().toString());
+        updatedNote.setDescription(descriptionEditText.getText().toString());
+        updatedNote.setDateTime(mDate);
+        updatedNote.setDone(note.getDone());
+
+        db.updateNote(updatedNote);
+        NoteList.getInstance().setNoteList(db.getNoteList());
+
     }
 }

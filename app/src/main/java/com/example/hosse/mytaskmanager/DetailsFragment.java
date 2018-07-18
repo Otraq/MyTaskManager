@@ -30,6 +30,8 @@ public class DetailsFragment extends Fragment {
     private Toolbar toolbar;
     private DatabaseHelper db;
 
+    public static final int M = 1;
+
 
     @Nullable
     @Override
@@ -54,7 +56,7 @@ public class DetailsFragment extends Fragment {
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddDialog dialog = AddDialog.newInstance();
+                AddDialog dialog = AddDialog.newInstance(M, note.getId());
                 dialog.show(getActivity().getSupportFragmentManager(), "MyDetailsAddFragment");
             }
         });
